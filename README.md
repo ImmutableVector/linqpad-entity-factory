@@ -13,7 +13,7 @@
 
 4) Set Language to C# Statement(s) in LINQPad
 
-5) 
+5) In script, fill in parameters and run.
 
 
 ## Release History
