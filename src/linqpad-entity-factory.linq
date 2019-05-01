@@ -11,14 +11,12 @@ EntityBuilder.BuildEntity(table, schema, tableProperties).Dump("Entity");
 // DTO
 var namespacePath = "NameSpace.Path.Dto"; // Fill in dto namespace path
 var namespacePathSubDir = ".SubPathCanBeAnEmptyString"; // Fill in dto namespace sub directory path
-var isPagable = false; // Make dto pageable
 var includeAuditProps = false; // Include audit props: ModifiedBy, ModifiedOn, CreatedBy, CreatedOn
 
-DtoBuilder.BuildDto(tableProperties, table, namespacePath += namespacePathSubDir, isPagable, includeAuditProps).Dump("Dto");
+DtoBuilder.BuildDto(tableProperties, table, namespacePath += namespacePathSubDir, includeAuditProps).Dump("Dto");
 
 public static class EntityBuilder
 {
-
 	public static string BuildEntity(string tableName, string schema, ICollection<TableProperty> properties)
 	{
 		var sb = new StringBuilder($"\t[Table(\"{tableName}\", schmea = \"{schema}\")]\r\n");
@@ -631,11 +629,6 @@ public static class DtoBuilder
 
 		dtoBuilder.AppendLine("using System;");
 
-		if (isIPagable == true)
-		{
-			dtoBuilder.AppendLine("using CareBook.Business.Interfaces");
-		}
-
 		dtoBuilder.AppendLine("using CareBook.Business.Models;" + "\n");
 		dtoBuilder.AppendLine("namespace " + namespacePath + "\n{");
 		dtoBuilder.AppendLine("\tpublic class " + tableName + "Dto" + (isIPagable ? " : IPagable" : string.Empty) + "\n\t{");
@@ -653,7 +646,6 @@ public static class DtoBuilder
 				dtoBuilder.AppendLine("\t\t[JsonConverter(typeof(UtcDateJsonConverter))]");
 			}
 
-
 			dtoBuilder.AppendLine(string.Format("\t\tpublic {0}{1} {2} {3}",
 					Shared.DataMap[property.DataType],
 					property.IsNullable && Shared.NonNullableMap.Contains(property.DataType) ? "?" : string.Empty,
@@ -663,16 +655,10 @@ public static class DtoBuilder
 			toEntityBuilder.AppendLine("\t\t\t\tentity." + Shared.NameSanitize(property.ColumnName) + " = " + Shared.NameSanitize(property.ColumnName) + ";");
 		}
 
-		if (isIPagable)
-		{
-			dtoBuilder.AppendLine("\t\tpublic int Skip { get; set; }\n\t\tpublic int Take { get; set; }");
-		}
-
 		dtoBuilder.AppendLine("\n\t\tpublic " + tableName + " ToEntity(" + tableName + " entity)\n\t\t{");
 		dtoBuilder.AppendLine("\t\t\t\tif (entity == null)\n\t\t\t\t{\n\t\t\t\t\t\treturn null;\n\t\t\t\t}\n");
 		dtoBuilder.Append(toEntityBuilder.ToString());
 		dtoBuilder.AppendLine("\n\t\t\t\treturn entity;\n\t\t}\n\t}\n}");
-
 
 		return dtoBuilder.ToString();
 	}
