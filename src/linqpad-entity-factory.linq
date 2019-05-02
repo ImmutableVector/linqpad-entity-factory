@@ -1,17 +1,17 @@
 #define NONEST
 
-var table = "TableNameHere"; // Fill in table name
+var table = "MemberComm"; // Fill in table name
 var schema = "dbo";
 var tableMetaData = new TableMetaDataBuilder(this.Connection);
 var tableProperties = tableMetaData.GetProperties(table, schema);
 
-// Entity
+// Build Entity
 EntityBuilder.BuildEntity(table, schema, tableProperties).Dump("Entity");
 
-// DTO
+// Build DTO
 var namespacePath = "NameSpace.Path.Dto"; // Fill in dto namespace path
 var namespacePathSubDir = ".SubPathCanBeAnEmptyString"; // Fill in dto namespace sub directory path
-var includeAuditProps = false; // Include audit props: ModifiedBy, ModifiedOn, CreatedBy, CreatedOn
+var includeAuditProps = false; // Include audit props: ModifiedBy, ModifiedOn || ModifiedDate, CreatedBy, CreatedOn || ModifiedDate
 
 DtoBuilder.BuildDto(tableProperties, table, namespacePath += namespacePathSubDir, includeAuditProps).Dump("Dto");
 
@@ -622,7 +622,7 @@ public class TableMetaDataBuilder
 
 public static class DtoBuilder
 {
-	public static string BuildDto(List<TableProperty> entityDto, string tableName, string namespacePath, bool isIPagable = false, bool includeAuditProps = false)
+	public static string BuildDto(List<TableProperty> entityDto, string tableName, string namespacePath, bool includeAuditProps = false)
 	{
 		var dtoBuilder = new StringBuilder();
 		var toEntityBuilder = new StringBuilder();
@@ -631,17 +631,23 @@ public static class DtoBuilder
 
 		dtoBuilder.AppendLine("using CareBook.Business.Models;" + "\n");
 		dtoBuilder.AppendLine("namespace " + namespacePath + "\n{");
-		dtoBuilder.AppendLine("\tpublic class " + tableName + "Dto" + (isIPagable ? " : IPagable" : string.Empty) + "\n\t{");
+		dtoBuilder.AppendLine("\tpublic class " + tableName + "Dto" + "\n\t{");
 
 		foreach (var property in entityDto)
 		{
 			var columnName = Shared.NameSanitize(property.ColumnName);
 
-			if ((columnName == "CreatedOn" || columnName == "ModifiedOn" || columnName == "CreatedBy" || columnName == "ModifiedBy") && !includeAuditProps)
+			if ((columnName == "CreatedOn"
+				||columnName == "CreatedDate"
+				|| columnName == "ModifiedOn"
+				|| columnName == "ModifiedDate"
+				|| columnName == "CreatedBy"
+				|| columnName == "ModifiedBy")
+				&& !includeAuditProps)
 			{
 				continue;
 			}
-			else if (columnName == "CreatedOn" || columnName == "ModifiedOn")
+			else if (columnName == "CreatedOn" || columnName == "CreatedDate" ||  columnName == "ModifiedOn" || columnName == "ModifiedDate")
 			{
 				dtoBuilder.AppendLine("\t\t[JsonConverter(typeof(UtcDateJsonConverter))]");
 			}
