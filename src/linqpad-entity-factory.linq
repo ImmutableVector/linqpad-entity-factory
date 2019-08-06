@@ -688,7 +688,7 @@ public static class Shared
 		,{ "money", "decimal" }
 		,{ "numeric", "decimal" }
 		,{ "nvarchar", "string" }
-		,{ "smallint", "small" }
+		,{ "smallint", "short" }
 		,{ "time", "TimeSpan" }
 		,{ "uniqueidentifier", "Guid" }
 		,{ "varbinary", "byte[]" }
