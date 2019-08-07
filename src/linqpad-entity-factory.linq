@@ -19,7 +19,7 @@ public static class EntityBuilder
 {
 	public static string BuildEntity(string tableName, string schema, ICollection<TableProperty> properties)
 	{
-		var sb = new StringBuilder($"\t[Table(\"{tableName}\", schmea = \"{schema}\")]\r\n");
+		var sb = new StringBuilder($"\t[Table(\"{tableName}\", Schema = \"{schema}\")]\r\n");
 		sb.Append($"\tpublic class {Shared.NameSanitize(tableName)}\r\n\t{{\r\n");
 
 		properties = properties
